@@ -1,48 +1,65 @@
 <template>
   <div>
-    <div class="schedule-container">
-      <WidgetAdvertisement class="is-advertisement" show-advertisement is-horizontal />
+    <WidgetAdvertisement
+      class="is-advertisement"
+      show-advertisement
+      is-horizontal
+    />
+
+    <table class="schedule-container">
       <!-- Header -->
-      <ElementTableCell is-header class="expandable" />
-      <ElementTableCell is-header class="time">
-        {{ $t('marathon.schedule.table.time') }}
-      </ElementTableCell>
-      <ElementTableCell is-header class="runners">
-        {{ $t('marathon.schedule.table.runner') }}
-      </ElementTableCell>
-      <ElementTableCell is-header class="game">
-        {{ $t('marathon.schedule.table.game') }}
-      </ElementTableCell>
-      <ElementTableCell is-header class="category">
-        {{ $t('marathon.schedule.table.category') }}
-      </ElementTableCell>
-      <ElementTableCell is-header class="type">
-        {{ $t('marathon.schedule.table.type') }}
-      </ElementTableCell>
-      <ElementTableCell is-header class="console">
-        {{ $t('marathon.schedule.table.console') }}
-      </ElementTableCell>
-      <ElementTableCell is-header class="estimate">
-        {{ $t('marathon.schedule.table.estimate') }}
-      </ElementTableCell>
-      <ElementTableCell is-header class="setup">
-        {{ $t('marathon.schedule.table.setup') }}
-      </ElementTableCell>
+      <!-- TODO turn this into its own component? -->
+      <thead>
+        <tr>
+          <th is-header class="expandable element-table-header" />
+          <th is-header class="time">
+            {{ $t("marathon.schedule.table.time") }}
+          </th>
+          <th is-header class="runners element-table-header">
+            {{ $t("marathon.schedule.table.runner") }}
+          </th>
+          <th is-header class="game element-table-header">
+            {{ $t("marathon.schedule.table.game") }}
+          </th>
+          <th is-header class="category">
+            {{ $t("marathon.schedule.table.category") }}
+          </th>
+          <th is-header class="type">
+            {{ $t("marathon.schedule.table.type") }}
+          </th>
+          <th is-header class="console">
+            {{ $t("marathon.schedule.table.console") }}
+          </th>
+          <th is-header class="estimate">
+            {{ $t("marathon.schedule.table.estimate") }}
+          </th>
+          <th is-header class="setup">
+            {{ $t("marathon.schedule.table.setup") }}
+          </th>
+        </tr>
+      </thead>
+
       <!-- Main Schedule Loop -->
-      <template v-if="runs">
+      <tbody v-if="runs">
         <template v-for="(run, index) in runs">
-          <WidgetAdvertisement
+          <tr
             v-show="shouldShowDay(index) && index !== 0"
             :key="`advertisement-${index}`"
-            class="is-advertisement"
-            :show-advertisement="advertisementIndices.includes(index)"
-            show-spacer
-            is-horizontal
-          />
+            colspan="20"
+          >
+            <WidgetAdvertisement
+              class="is-advertisement"
+              :show-advertisement="advertisementIndices.includes(index)"
+              show-spacer
+              is-horizontal
+            />
+          </tr>
 
-          <ElementTableCell v-show="shouldShowDay(index)" :key="`day-${index}`" class="day is-info" column-start="1" column-end="-1">
-            <ElementTemporalDateTime :datetime="run.date" format="longDate" />
-          </ElementTableCell>
+          <tr v-show="shouldShowDay(index)" :key="`day-${index}`">
+            <td colspan="20 " class="day is-info">
+              <ElementTemporalDateTime :datetime="run.date" format="longDate" />
+            </td>
+          </tr>
 
           <!-- XXX @click.native will stop working in Vue v3+ (Vue Router v4+), but @click should start working -->
           <MarathonScheduleRow
@@ -55,40 +72,50 @@
             @click.native="toggleExpand(run.id)"
           />
 
-          <ElementTableDetail v-if="expanded.has(run.id)" :key="`expanded-${index}`" class="expanded-run" :class="getRowParity(index, run)">
+          <ElementTableDetail
+            v-if="expanded.has(run.id)"
+            :key="`expanded-${index}`"
+            class="expanded-run"
+            :class="getRowParity(index, run)"
+          >
             <MarathonScheduleRun :run="run" />
           </ElementTableDetail>
         </template>
-      </template>
-    </div>
+      </tbody>
+    </table>
     <div class="is-centered">
-      <WidgetLoading :while="[ schedule ]" />
+      <WidgetLoading :while="[schedule]" />
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
-import { mapActions } from 'vuex';
-import { toggleTableExpand } from '~/assets/table';
-import { Schedule, ScheduleLine, ScheduleState, ScheduleTicker } from '~/types/api/schedule';
+import Vue from "vue";
+import { mapActions } from "vuex";
+import { toggleTableExpand } from "~/assets/table";
+import {
+  Schedule,
+  ScheduleLine,
+  ScheduleState,
+  ScheduleTicker,
+} from "~/types/api/schedule";
 
 export default Vue.extend({
   props: {
     marathonId: {
       type: String,
-      default: '',
+      default: "",
     },
     runHash: {
       type: String,
-      default: '',
+      default: "",
     },
   },
 
   data() {
     return {
       expanded: new Set<number>(),
-      interval: undefined as NodeJS.Timeout|undefined,
+      interval: undefined as NodeJS.Timeout | undefined,
     };
   },
 
@@ -100,17 +127,21 @@ export default Vue.extend({
   },
 
   computed: {
-    schedule(): Schedule|undefined {
-      return (this.$store.state.api.schedule as ScheduleState).schedules[this.marathonId];
+    schedule(): Schedule | undefined {
+      return (this.$store.state.api.schedule as ScheduleState).schedules[
+        this.marathonId
+      ];
     },
-    runs(): Array<ScheduleLine>|undefined {
+    runs(): Array<ScheduleLine> | undefined {
       return this.schedule?.lines;
     },
-    tickers(): ScheduleTicker|undefined {
-      return (this.$store.state.api.schedule as ScheduleState).tickers[this.marathonId];
+    tickers(): ScheduleTicker | undefined {
+      return (this.$store.state.api.schedule as ScheduleState).tickers[
+        this.marathonId
+      ];
     },
     advertisementIndices(): Array<number> {
-      const advertisementIndices: Array<number> = [ ];
+      const advertisementIndices: Array<number> = [];
       const minimumGap = 16;
       let index = minimumGap;
       const runsLength = this.runs?.length ?? 0;
@@ -157,29 +188,32 @@ export default Vue.extend({
         if (runHashResults) {
           this.toggleExpand(Number.parseInt(runHashResults[1]), true);
         } else if (this.tickers) {
-          if (this.runHash === '#current') {
+          if (this.runHash === "#current") {
             this.toggleExpand(this.tickers.current?.id, true);
-          } else if (this.runHash === '#next') {
+          } else if (this.runHash === "#next") {
             this.toggleExpand(this.tickers.next?.id, true);
           }
         }
       }
     },
-    getId(run: ScheduleLine): string|undefined {
+    getId(run: ScheduleLine): string | undefined {
       switch (run.id) {
         case this.tickers?.current?.id:
-          return 'current';
+          return "current";
         case this.tickers?.next?.id:
-          return 'next';
+          return "next";
         default:
           return undefined;
       }
     },
-    getRowParity(index: number, run: ScheduleLine): { 'is-primary': boolean, 'is-even': boolean, 'is-odd': boolean } {
+    getRowParity(
+      index: number,
+      run: ScheduleLine
+    ): { "is-primary": boolean; "is-even": boolean; "is-odd": boolean } {
       return {
-        'is-even': index % 2 === 0,
-        'is-odd': index % 2 === 1,
-        'is-primary': run.id === this.tickers?.current?.id,
+        "is-even": index % 2 === 0,
+        "is-odd": index % 2 === 1,
+        "is-primary": run.id === this.tickers?.current?.id,
       };
     },
     shouldShowDay(index: number): boolean {
@@ -193,75 +227,119 @@ export default Vue.extend({
       // We have an implicit index test for the index=0 case, so this is always safe
       const previousRun = new Date(this.runs![index - 1].date);
 
-      return currentRun.getDate() !== previousRun.getDate() ||
+      return (
+        currentRun.getDate() !== previousRun.getDate() ||
         currentRun.getMonth() !== previousRun.getMonth() ||
-        currentRun.getFullYear() !== previousRun.getFullYear();
+        currentRun.getFullYear() !== previousRun.getFullYear()
+      );
     },
     ...mapActions({
-      getSchedule: 'api/schedule/get',
-      getScheduleTicker: 'api/schedule/ticker',
+      getSchedule: "api/schedule/get",
+      getScheduleTicker: "api/schedule/ticker",
     }),
   },
 });
 </script>
 
 <style lang="scss" scoped>
-@use '~assets/table';
+@forward "~assets/table/variables";
+
+@use "~assets/table";
+
+th {
+  @include table.cell-like();
+  @include table.cell-varients();
+
+  padding: calc(var(--spacing) / 2);
+  font-weight: bold;
+}
+
+.expandable {
+  width: 1px;
+}
+
+.is-info {
+  @include table.cell-like();
+  @include table.cell-varients();
+
+  padding: calc(var(--spacing) / 2);
+}
 
 .schedule-container {
-  @include table.shrink($default-template-columns: 9, $has-expand-button: true, $shrinking-rules: (
-    1150px '.setup' 8,
-    1023px '.console' 7,
-    900px '.type' 6,
-    768px '.estimate' 5,
-    600px '.category' 4,
-  ));
+  $sizes: (
+    1150px ".setup",
+    1023px ".console",
+    900px ".type",
+    768px ".estimate",
+    600px ".category"
+  );
 
-  // Temporary relocation of ElementTable styling
-  display: grid;
-  grid-auto-rows: auto;
+  @each $size, $class in $sizes {
+    @media (max-width: $size) {
+      ::v-deep #{$class} {
+        display: none;
+      }
+    }
+  }
+
   width: 100%;
   max-width: 100%;
-  // End temporary styles
   overflow-x: auto;
 
   > .run {
     cursor: pointer;
   }
 
-  > .day {
+  .day {
     font-weight: bold;
     text-align: center;
   }
 
-  > .is-advertisement {
-    // Span from start to finish
-    grid-column: 1 / -1;
-    justify-self: center;
-  }
+  // > .is-advertisement {
+  //  justify-self: center;
+  // }
 }
 
 // This solution is less than ideal.
 // I'd prefer to avoid leaking information from parents, this isn't portable
 // This allows these rules to work only when in desktop and when the sidebar is expanded
-@media (min-width: 1023px) {
-  .marathon-container:not(.collapsed) .schedule-container {
-    @include table.shrink($default-template-columns: 9, $has-expand-button: true, $shrinking-rules: (
-      1450px '.setup' 8,
-      1350px '.console' 7,
-      1250px '.type' 6,
-      1100px '.estimate' 5,
-    ));
-  }
-}
+// @media (min-width: 1023px) {
+//   .marathon-container:not(.collapsed) .schedule-container {
+//     @include table.shrink(
+//       $default-template-columns: 9,
+//       $has-expand-button: true,
+//       $shrinking-rules: (
+//         1450px ".setup" 8,
+//         1350px ".console" 7,
+//         1250px ".type" 6,
+//         1100px ".estimate" 5,
+//       )
+//     );
+//   }
+// }
 
 @media (max-width: 500px) {
-  // At really small sizes, long names can become problematic
-  // this allows them to take scrollbars instead. We don't do this at every
-  // size, since doing this forces scrolls when they aren't needed
-  ::v-deep .runners,
-  ::v-deep .game {
-    overflow-x: auto;
+  // Make table work better small screens
+  table {
+    table-layout: fixed;
+  }
+
+  ::v-deep .runners > div,
+  ::v-deep .game > div {
+    overflow: scroll;
+  }
+
+  ::v-deep .expandable {
+    width: 1.5rem;
+  }
+
+  ::v-deep .time {
+    width: 4rem;
+  }
+
+  ::v-deep .game,
+  ::v-deep .runners {
+    width: 100%;
   }
 }
 </style>

@@ -1,48 +1,57 @@
 <template>
-  <ElementTableRow>
-    <ElementTableExpandButton :id="internalId" :is-expanded="isExpanded" class="expandable" />
+  <tr>
+    <td :id="internalId" :is-expanded="isExpanded" class="expandable">A</td>
 
-    <ElementTableCell :id="'run-' + run.id" class="time">
+    <td :id="'run-' + run.id" class="time">
       <ElementTemporalDateTime :datetime="run.date" format="shortTime" />
-    </ElementTableCell>
+    </td>
 
-    <ElementTableCell v-if="run.setupBlock" class="setup-text" column-end="span 2">
-      {{ (run.setupBlockText || $t('marathon.schedule.setupBlock')) }}
-    </ElementTableCell>
-    <template v-else>
-      <ElementTableCell class="runners">
-        <User v-for="runner in run.runners" :key="`runner-${runner.id}`" :user="runner" />
-      </ElementTableCell>
-      <ElementTableCell class="game">
+    <td v-if="run.setupBlock" class="setup-text" column-end="span 2">
+      <div>
+        {{ run.setupBlockText || $t("marathon.schedule.setupBlock") }}
+      </div>
+    </td>
+    <td v-else class="runners">
+      <div>
+        <User
+          v-for="runner in run.runners"
+          :key="`runner-${runner.id}`"
+          :user="runner"
+        />
+      </div>
+    </td>
+
+    <td class="game">
+      <div>
         {{ run.gameName }}
-      </ElementTableCell>
-    </template>
+      </div>
+    </td>
 
-    <ElementTableCell class="category">
+    <td class="category">
       {{ run.categoryName }}
-    </ElementTableCell>
+    </td>
 
-    <ElementTableCell class="type">
+    <td class="type">
       {{ $t(`marathon.schedule.type.${run.type}`) }}
-    </ElementTableCell>
+    </td>
 
-    <ElementTableCell class="console">
+    <td class="console">
       <ElementConsole :console="run.console" :is-emulated="run.emulated" />
-    </ElementTableCell>
+    </td>
 
-    <ElementTableCell class="estimate">
+    <td class="estimate">
       <ElementTemporalDuration :duration="run.estimate" />
-    </ElementTableCell>
+    </td>
 
-    <ElementTableCell class="setup">
+    <td class="setup">
       <ElementTemporalDuration :duration="run.setupTime" />
-    </ElementTableCell>
-  </ElementTableRow>
+    </td>
+  </tr>
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
-import { ScheduleLine } from '~/types/api/schedule';
+import Vue from "vue";
+import { ScheduleLine } from "~/types/api/schedule";
 
 export default Vue.extend({
   props: {
@@ -61,3 +70,24 @@ export default Vue.extend({
   },
 });
 </script>
+
+<style lang="scss" scoped>
+@forward "~assets/table/variables";
+
+@use "~assets/table";
+
+td {
+  @include table.cell-like();
+  @include table.cell-varients();
+
+  // &.runners,
+  // &.game > div {
+  //   // overflow: auto;
+  //   // position: absolute;
+  // }
+}
+
+.expandable {
+  width: 1px;
+}
+</style>
