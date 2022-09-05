@@ -1,6 +1,8 @@
 <template>
   <tr>
-    <td :id="internalId" :is-expanded="isExpanded" class="expandable">A</td>
+    <td :id="internalId" :is-expanded="isExpanded" class="expandable">
+      A
+    </td>
 
     <td :id="'run-' + run.id" class="time">
       <ElementTemporalDateTime :datetime="run.date" format="shortTime" />
@@ -50,8 +52,8 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
-import { ScheduleLine } from "~/types/api/schedule";
+import Vue from 'vue';
+import { ScheduleLine } from '~/types/api/schedule';
 
 export default Vue.extend({
   props: {

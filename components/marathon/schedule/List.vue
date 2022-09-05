@@ -13,28 +13,28 @@
         <tr>
           <th is-header class="expandable element-table-header" />
           <th is-header class="time">
-            {{ $t("marathon.schedule.table.time") }}
+            {{ $t('marathon.schedule.table.time') }}
           </th>
           <th is-header class="runners element-table-header">
-            {{ $t("marathon.schedule.table.runner") }}
+            {{ $t('marathon.schedule.table.runner') }}
           </th>
           <th is-header class="game element-table-header">
-            {{ $t("marathon.schedule.table.game") }}
+            {{ $t('marathon.schedule.table.game') }}
           </th>
           <th is-header class="category">
-            {{ $t("marathon.schedule.table.category") }}
+            {{ $t('marathon.schedule.table.category') }}
           </th>
           <th is-header class="type">
-            {{ $t("marathon.schedule.table.type") }}
+            {{ $t('marathon.schedule.table.type') }}
           </th>
           <th is-header class="console">
-            {{ $t("marathon.schedule.table.console") }}
+            {{ $t('marathon.schedule.table.console') }}
           </th>
           <th is-header class="estimate">
-            {{ $t("marathon.schedule.table.estimate") }}
+            {{ $t('marathon.schedule.table.estimate') }}
           </th>
           <th is-header class="setup">
-            {{ $t("marathon.schedule.table.setup") }}
+            {{ $t('marathon.schedule.table.setup') }}
           </th>
         </tr>
       </thead>
@@ -90,25 +90,25 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
-import { mapActions } from "vuex";
-import { toggleTableExpand } from "~/assets/table";
+import Vue from 'vue';
+import { mapActions } from 'vuex';
+import { toggleTableExpand } from '~/assets/table';
 import {
   Schedule,
   ScheduleLine,
   ScheduleState,
   ScheduleTicker,
-} from "~/types/api/schedule";
+} from '~/types/api/schedule';
 
 export default Vue.extend({
   props: {
     marathonId: {
       type: String,
-      default: "",
+      default: '',
     },
     runHash: {
       type: String,
-      default: "",
+      default: '',
     },
   },
 
@@ -188,9 +188,9 @@ export default Vue.extend({
         if (runHashResults) {
           this.toggleExpand(Number.parseInt(runHashResults[1]), true);
         } else if (this.tickers) {
-          if (this.runHash === "#current") {
+          if (this.runHash === '#current') {
             this.toggleExpand(this.tickers.current?.id, true);
-          } else if (this.runHash === "#next") {
+          } else if (this.runHash === '#next') {
             this.toggleExpand(this.tickers.next?.id, true);
           }
         }
@@ -199,21 +199,21 @@ export default Vue.extend({
     getId(run: ScheduleLine): string | undefined {
       switch (run.id) {
         case this.tickers?.current?.id:
-          return "current";
+          return 'current';
         case this.tickers?.next?.id:
-          return "next";
+          return 'next';
         default:
           return undefined;
       }
     },
     getRowParity(
       index: number,
-      run: ScheduleLine
-    ): { "is-primary": boolean; "is-even": boolean; "is-odd": boolean } {
+      run: ScheduleLine,
+    ): { 'is-primary': boolean; 'is-even': boolean; 'is-odd': boolean } {
       return {
-        "is-even": index % 2 === 0,
-        "is-odd": index % 2 === 1,
-        "is-primary": run.id === this.tickers?.current?.id,
+        'is-even': index % 2 === 0,
+        'is-odd': index % 2 === 1,
+        'is-primary': run.id === this.tickers?.current?.id,
       };
     },
     shouldShowDay(index: number): boolean {
@@ -234,8 +234,8 @@ export default Vue.extend({
       );
     },
     ...mapActions({
-      getSchedule: "api/schedule/get",
-      getScheduleTicker: "api/schedule/ticker",
+      getSchedule: 'api/schedule/get',
+      getScheduleTicker: 'api/schedule/ticker',
     }),
   },
 });
